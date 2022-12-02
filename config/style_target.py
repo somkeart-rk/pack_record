@@ -34,7 +34,8 @@ def newStyle():
                 sql += f" where active='Y' and `style_type`='{groupType}' and `style_code` like '%{styleCode}%' " 
                 df = db.run_query(sql)
                 rows = pd.DataFrame(df,columns=["ประเภทงาน","สไตล์งาน","เป้าหมายต่อชั่วโมง","หน่วยนับ","เริ่มใช้งาน"])
-                AgGrid(rows, fit_columns_on_grid_load=True)
+                st.dataframe(rows, use_container_width=True)
+                #AgGrid(rows, fit_columns_on_grid_load=True)
             else:
                 st.warning("ไม่มีข้อมูล")
             

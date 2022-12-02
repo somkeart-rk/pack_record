@@ -17,6 +17,9 @@ def load_data(startDate,finishDate,groupType,shiftType,cellGroup):
     sql += ",(select group_concat(t10.emp_code) from tsc_main_db.set_man_power t10 "
     sql += f" where t10.group_type='{groupType}' and t10.shift='{shiftType[0:2]}' and t10.line_code='{cellGroup[0]}' and t10.machine_code='{cellGroup[-2:]}' "
     sql += f" and date_format(t10.start_date,'%Y-%m-%d')='{startDate}') as emp_code "
+    sql += ",(select count(t10.emp_code) from tsc_main_db.set_man_power t10 "
+    sql += f" where t10.group_type='{groupType}' and t10.shift='{shiftType[0:2]}' and t10.line_code='{cellGroup[0]}' and t10.machine_code='{cellGroup[-2:]}' "
+    sql += f" and date_format(t10.start_date,'%Y-%m-%d')='{startDate}') as man_hour "
     sql += " from tsc_main_db.trans_pack_finish t0 "
     sql += f" where  t0.group_type ='{groupType}' and t0.shift = '{shiftType[0:2]}' and t0.line_pack ='{cellGroup[0]}' "
     sql += f" and t0.cell_pack = '{cellGroup[-2:]}' "
@@ -27,7 +30,7 @@ def load_data(startDate,finishDate,groupType,shiftType,cellGroup):
     st.info("รายการประวัติการทำงาน")
     rows = db.run_query(sql)
     #return pd.DataFrame(rows)
-    return pd.DataFrame(rows,columns=["ประเภทงาน","วันที่ทำงาน","กะทำงาน","สาย/Cell","เวลาทำงาน","สไตล์งาน","เป้าหมาย","ทำได้จริง","ผู้รับผิดชอบ"])
+    return pd.DataFrame(rows,columns=["ประเภท","วันทำงาน","กะทำงาน","สาย/Cell","เวลาทำงาน","สไตล์งาน","เป้าหมาย","ทำได้จริง","ผู้รับผิดชอบ","จำนวนคน"])
     
 def showhistiryjob():
     with st.container():
@@ -45,8 +48,8 @@ def showhistiryjob():
         if col6.button("ค้นหา"):
             #st.write(st_d," ",fn_d)
             df = load_data(st_d,fn_d,groupType,shiftType,cellGroup)
-            #st.dataframe(df, use_container_width=True)
-            AgGrid(df, fit_columns_on_grid_load=True)
+            st.dataframe(df, use_container_width=True)
+            #AgGrid(df, fit_columns_on_grid_load=True)
             st.download_button(label="download as Excel-file",
                 data=exp.convert_to_excel(df),
                 file_name="export_pack_history.xls",
